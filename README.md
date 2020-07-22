@@ -152,4 +152,31 @@ When making use of the module the following commands should be used in the appro
 | aws_gw2_tunnel1_peer_ip        | BGP peer IP address for the tunnel that connects from interface 1 on the GCP side to gateway 2 interface 0 on the AWS side                                                                                                      |  string   |    -    |    yes    |
 | aws_gw2_tunnel2_peer_ip        | BGP peer IP address for the tunnel that connects from interface 1 on the GCP side to gateway 2 interface 1 on the AWS side                                                                                                      |  string   |    -    |    yes    |
 
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| vpn_one_interface_0_ip_address | The IP address associated with interface 0 of the VPN Gateway |
+| vpn_one_interface_1_ip_address | The IP address associated with interface 1 of the VPN Gateway |
+
+### Configure a Service Account
+In order to utilise this module you must have a Service Account with the following roles:
+- roles/compute.networkAdmin on the organization
+
+### Enable API's
+In order to operate with the Service Account you must activate the following API on the project where the Service Account was created:
+- Compute Engine API - compute.googleapis.com
+
+## Development
+### File structure
+The project has the following folders and files:
+
+- /: root folder
+- /example: example for using this module
+- /main.tf: calling module, calls the vpn module
+- /output.tf: the outputs of the module
+- /variables.tf: all the variables for the module
+- /vpn: module that is responsible for the setup of the vpn
+- /README.md: this file
+
 

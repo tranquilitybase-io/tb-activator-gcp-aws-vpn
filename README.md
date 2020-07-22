@@ -35,7 +35,27 @@ The following steps outline how the connection will be setup:
 6) 4 tunnels needed to be created. Each of the tunnels on the GCP side require 4 pieces of information from the AWS side which can be found in the configuration files.
 
 
+The VPN module must be consumed in the following manner in order to abide by the steps listed above:
+
+Step 1:
+
+Create GCP VPN gateway first with -target flag
+
+`terraform apply -target module.network.google_compute_ha_vpn_gateway.ha_gateway`
 
 
-the vpn module must be consumed in the following manner:
+Step 2:
+
+Exchange IP details with 3rd party. Update tfvars file according to the configuration files provided from AWS side.
+
+
+Step 3:
+
+Create remaining terraform resources
+
+`terraform apply`
+
+
+
+
 

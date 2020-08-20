@@ -1,65 +1,58 @@
-# Terraform Google Cloud Platform - GCP to AWS HA VPN Module
+# GCP to AWS HA VPN Module
+This module is responsible for deploying all of the infrastructure required for the setup of a GCP-AWS HA VPN.
 
-A Terraform module for creating HA VPN connection between a GCP network and a AWS network.
+An example use of this module can be found below:
 
-This modules makes it easy to set up VPN connectivity in GCP by defining your gateways and tunnels.
+## Example
 
-It supports creating:
+main.tf file:
+```hcl
+module "ha-vpn" {
+  source = "./vpn"
+  aws_gw1_tunnel1_address = var.aws_gw1_tunnel1_address
+  aws_gw1_tunnel1_inside_address = var.aws_gw1_tunnel1_inside_address
+  aws_gw1_tunnel1_peer_ip = var.aws_gw1_tunnel1_peer_ip
+  aws_gw1_tunnel1_shared_secret = var.aws_gw1_tunnel1_shared_secret
+  aws_gw1_tunnel2_address = var.aws_gw1_tunnel2_address
+  aws_gw1_tunnel2_inside_address = var.aws_gw1_tunnel2_inside_address
+  aws_gw1_tunnel2_peer_ip = var.aws_gw1_tunnel2_peer_ip
+  aws_gw1_tunnel2_shared_secret = var.aws_gw1_tunnel2_shared_secret
+  aws_gw2_tunnel1_address = var.aws_gw2_tunnel1_address
+  aws_gw2_tunnel1_inside_address = var.aws_gw2_tunnel1_inside_address
+  aws_gw2_tunnel1_peer_ip = var.aws_gw2_tunnel1_peer_ip
+  aws_gw2_tunnel1_shared_secret = var.aws_gw2_tunnel1_shared_secret
+  aws_gw2_tunnel2_address = var.aws_gw2_tunnel2_address
+  aws_gw2_tunnel2_inside_address = var.aws_gw2_tunnel2_inside_address
+  aws_gw2_tunnel2_peer_ip = var.aws_gw2_tunnel2_peer_ip
+  aws_gw2_tunnel2_shared_secret = var.aws_gw2_tunnel2_shared_secret
+  bgp_peer_1 = var.bgp_peer_1
+  bgp_peer_2 = var.bgp_peer_2
+  bgp_peer_3 = var.bgp_peer_3
+  bgp_peer_4 = var.bgp_peer_4
+  cloud_router = var.cloud_router
+  gcp_asn = var.gcp_asn
+  gcp_project_id = var.gcp_project_id
+  gcp_region = var.gcp_region
+  gw1_tunnel1_asn = var.gw1_tunnel1_asn
+  gw1_tunnel2_asn = var.gw1_tunnel2_asn
+  gw2_tunnel1_asn = var.gw2_tunnel1_asn
+  gw2_tunnel2_asn = var.gw2_tunnel2_asn
+  ha_vpn_gateway = var.ha_vpn_gateway
+  network = var.network
+  peer_gw_name = var.peer_gw_name
+  router_int0 = var.router_int0
+  router_int1 = var.router_int1
+  router_int2 = var.router_int2
+  router_int3 = var.router_int3
+  subnet_ip_cidr = var.subnet_ip_cidr
+  tunnel_name_if1 = var.tunnel_name_if1
+  tunnel_name_if2 = var.tunnel_name_if2
+  tunnel_name_if3 = var.tunnel_name_if3
+  tunnel_name_if4 = var.tunnel_name_if4
+}
+```
 
-- A Google VPN Gateway
-- Tunnels connecting the gateway to defined AWS peer
-- Dynamic routes with cloud router
-
-## Compatibility
-
-This module is meant for use with Terraform >=0.12.
-
-## Usage
-
-This module can be used to create the vpn gateways, tunnels etc on the GCP side of the connection.
-
-There are 2 stages needed in order to setup the relevant infrastructure and initiate the VPN connection between the GCP and AWS networks.
-
-The following steps outline how the connection will be setup:
-
-1) Setup GCP network and VPN GW
-
-2) Exchange details with AWS side by providing the 2 IP addresses. 1 IP per address per interface.
-
-3) Setup AWS network, GW and tunnels using IP addresses and the google ASN from the GCP side.
-
-4) Download configuration files for each AWS gateway. 2 in total.
-
-5) Use the addresses retrieved from the AWS configuration files to setup the tunnels and BGP sessions on the GCP side.
-
-6) 4 tunnels needed to be created. Each of the tunnels on the GCP side require 4 pieces of information from the AWS side which can be found in the configuration files.
-
-
-
-The VPN module must be consumed in the following manner in order to abide by the steps listed above:
-
-Step 1:
-
-Create GCP VPN gateway first with -target flag
-
-`terraform apply -target module.network.google_compute_ha_vpn_gateway.ha_gateway`
-
-
-Step 2:
-
-Exchange IP details with 3rd party. Update tfvars file according to the configuration files provided from AWS side.
-
-
-Step 3:
-
-Create remaining terraform resources
-
-`terraform apply`
-
-
-
-The terraform.tfvars file should be generated in the root folder. An example of how the terraform.tfvars file should look:
-
+terraform.tfvars file:
 ```hcl
   aws_gw1_tunnel1_address = "52.89.198.230"
   aws_gw1_tunnel1_inside_address = "169.254.32.106/30"
@@ -97,17 +90,8 @@ The terraform.tfvars file should be generated in the root folder. An example of 
   tunnel_name_if2 = "tunnel-2-to-aws"
   tunnel_name_if3 = "tunnel-3-to-aws"
   tunnel_name_if4 = "tunnel-4-to-aws"
-```
-
-The example folder demonstrates a use of the module to deploying the resources on the GCP side and setting up the VPN connection between both the GCP and AWS networks.
-
-When making use of the module the following commands should be used in the appropriate folders::
-
-- `terraform init` to get the plugins
-- `terraform plan` to see the infrastructure plan
-- `terraform apply` to apply the infrastructure build
-- `terraform destroy` to destroy the built infrastructure
-
+  ```
+  
 ## Inputs
 | Name               | Description                                                                                                                                                         |  Type  | Default | Required |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----: | :-----: | :------: |
@@ -158,25 +142,3 @@ When making use of the module the following commands should be used in the appro
 |------|-------------|
 | vpn_one_interface_0_ip_address | The IP address associated with interface 0 of the VPN Gateway |
 | vpn_one_interface_1_ip_address | The IP address associated with interface 1 of the VPN Gateway |
-
-### Configure a Service Account
-In order to utilise this module you must have a Service Account with the following roles:
-- roles/compute.networkAdmin on the organization
-
-### Enable API's
-In order to operate with the Service Account you must activate the following API on the project where the Service Account was created:
-- Compute Engine API - compute.googleapis.com
-
-## Development
-### File structure
-The project has the following folders and files:
-
-- /: root folder
-- /example: example for using this module
-- /main.tf: calling module, calls the vpn module
-- /output.tf: the outputs of the module
-- /variables.tf: all the variables for the module
-- /vpn: module that is responsible for the setup of the vpn
-- /README.md: this file
-
-
